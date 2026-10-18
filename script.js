@@ -1,14 +1,16 @@
 (() => {
   "use strict";
 
-  const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || window.location.protocol === "file:"
-    ? "http://127.0.0.1:8000"
-    : "http://127.0.0.1:8000"; // Replace with your deployed URL when you deploy online
+  const API_BASE = "https://mental-health-score-p8x8.onrender.com";
 
   const form = document.getElementById("predict-form");
   const submitBtn = document.getElementById("submit-btn");
   const resetBtn = document.getElementById("reset-btn");
   const errorRetryBtn = document.getElementById("error-retry-btn");
+  const sampleBtn = document.getElementById("sample-btn");
+  const copyBtn = document.getElementById("copy-btn");
+  const copyText = document.getElementById("copy-text");
+  const insightTagsEl = document.getElementById("insight-tags");
 
   const stateIdle = document.getElementById("state-idle");
   const stateLoading = document.getElementById("state-loading");
@@ -182,13 +184,61 @@
     };
   }
 
-  function renderResult(score) {
+  function animateScore(targetScore, duration = 1100) {
+    const startTime = performance.now();
+    function step(now) {
+      const elapsed = now - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const ease = 1 - Math.pow(1 - progress, 3);
+      const current = targetScore * ease;
+      scoreNumberEl.textContent = current.toFixed(2);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        scoreNumberEl.textContent = targetScore.toFixed(2);
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function renderResult(score, payload) {
     const clamped = Math.max(0, Math.min(10, score));
     const { label, context } = bandFor(clamped);
 
-    scoreNumberEl.textContent = score.toFixed(2);
+    animateScore(clamped);
     scoreBandEl.textContent = label;
     scoreContextEl.textContent = context;
+
+    // Render personalized lifestyle takeaway tags
+    if (insightTagsEl) {
+      insightTagsEl.innerHTML = "";
+      const pills = [];
+      if (payload) {
+        if (payload.sleep_hours_per_night >= 7) {
+          pills.push(["🛌", "Sleep: Healthy Rest"]);
+        } else {
+          pills.push(["⚠️", "Sleep: Short Duration"]);
+        }
+
+        if (payload.avg_daily_usage_hours > 6) {
+          pills.push(["📱", "Screen: High Load"]);
+        } else {
+          pills.push(["✨", "Screen: Balanced"]);
+        }
+
+        if (payload.physical_activity_hours >= 1.5) {
+          pills.push(["🏃", "Movement: Active"]);
+        }
+
+        pills.push(["⚡", `Stress: ${payload.stress_level || "Recorded"}`]);
+      }
+      pills.forEach(([icon, text]) => {
+        const span = document.createElement("span");
+        span.className = "insight-pill";
+        span.textContent = `${icon} ${text}`;
+        insightTagsEl.appendChild(span);
+      });
+    }
 
     // reset then animate the arc fill on next frame
     gaugeFill.style.transition = "none";
@@ -279,11 +329,11 @@
         return;
       }
 
-      renderResult(data.predicted_mental_health_score);
+      renderResult(data.predicted_mental_health_score, payload);
     } catch (err) {
       renderError(
         "Can't reach the server",
-        `Couldn't connect to ${API_BASE}. Make sure the backend is running (uvicorn main:app --reload) and reachable from this page.`
+        `Couldn't connect to ${API_BASE}. If the server was idle, Render free tier may take ~30–50s to wake up. Please try again in a moment.`
       );
     } finally {
       setSubmitting(false);
@@ -303,4 +353,50 @@
   errorRetryBtn.addEventListener("click", () => {
     showState("idle");
   });
+
+  // Sample data quick preset
+  if (sampleBtn) {
+    sampleBtn.addEventListener("click", () => {
+      clearAllErrors();
+      document.getElementById("age").value = 21;
+      document.getElementById("gender").value = "Male";
+      document.getElementById("country").value = "India";
+      document.getElementById("academic_level").value = "Undergraduate";
+      document.getElementById("most_used_platform").value = "Instagram";
+      document.getElementById("purpose_of_use").value = "Entertainment";
+      document.getElementById("avg_daily_usage_hours").value = 4.5;
+      document.getElementById("daily_unlocks").value = 110;
+      document.getElementById("study_hours").value = 3.5;
+      document.getElementById("physical_activity_hours").value = 1.8;
+      document.getElementById("sleep_hours_per_night").value = 7.5;
+
+      // Select 'Medium' stress button
+      segGroup.querySelectorAll(".seg-btn").forEach((b) => b.classList.remove("active"));
+      const medBtn = segGroup.querySelector('[data-value="Medium"]');
+      if (medBtn) medBtn.classList.add("active");
+      stressHiddenInput.value = "Medium";
+      clearFieldError(stressHiddenInput);
+    });
+  }
+
+  // Copy readout summary
+  if (copyBtn) {
+    copyBtn.addEventListener("click", async () => {
+      const score = scoreNumberEl.textContent;
+      const band = scoreBandEl.textContent;
+      const textToCopy = `Mental Health Score: ${score}/10 (${band}) — Analyzed via Mental Health Signal.`;
+      try {
+        await navigator.clipboard.writeText(textToCopy);
+        if (copyText) {
+          const original = copyText.textContent;
+          copyText.textContent = "✓ Copied!";
+          setTimeout(() => {
+            copyText.textContent = original;
+          }, 2000);
+        }
+      } catch (e) {
+        // Fallback silent handle
+      }
+    });
+  }
 })();

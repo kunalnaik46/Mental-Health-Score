@@ -6,17 +6,30 @@
 <title>Mental Health Signal — Student Wellness Analytics</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css" />
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css?v=2.0" />
 </head>
 <body>
 
+<div class="ambient-light ambient-1" aria-hidden="true"></div>
+<div class="ambient-light ambient-2" aria-hidden="true"></div>
 <div class="noise-overlay" aria-hidden="true"></div>
 
 <header class="site-header">
   <div class="header-inner">
-    <span class="eyebrow">Student Wellness Analytics</span>
-    <h1 class="title">Mental Health <em>Signal</em></h1>
+    <div class="header-top">
+      <span class="eyebrow">Student Wellness Analytics</span>
+      <a href="https://mental-health-score-1-ew8o.onrender.com" target="_blank" rel="noopener noreferrer" class="status-badge" title="Open live deployment on Render">
+        <span class="status-dot"></span>
+        <span class="status-text">Live on Render</span>
+      </a>
+    </div>
+    <div class="title-row">
+      <h1 class="title">Mental Health <span class="gradient-text">Signal</span></h1>
+      <button type="button" class="sample-btn" id="sample-btn" title="Autofill realistic data to test instantly">
+        <span class="sparkle">✨</span> Try Sample Profile
+      </button>
+    </div>
     <p class="subtitle">A quick read on how habits, screen time, and stress are trending — modeled from your daily rhythm, not a diagnosis.</p>
   </div>
 </header>
@@ -154,10 +167,10 @@
           <div class="field field-span">
             <label for="stress_level">Perceived stress level</label>
             <div class="segmented" id="stress_level_group" data-name="stress_level">
-              <button type="button" class="seg-btn" data-value="Low">Low</button>
-              <button type="button" class="seg-btn" data-value="Medium">Medium</button>
-              <button type="button" class="seg-btn" data-value="High">High</button>
-              <button type="button" class="seg-btn" data-value="Very High">Very High</button>
+              <button type="button" class="seg-btn" data-value="Low"><span class="seg-emoji">😌</span><span>Low</span></button>
+              <button type="button" class="seg-btn" data-value="Medium"><span class="seg-emoji">😐</span><span>Medium</span></button>
+              <button type="button" class="seg-btn" data-value="High"><span class="seg-emoji">😰</span><span>High</span></button>
+              <button type="button" class="seg-btn" data-value="Very High"><span class="seg-emoji">🚨</span><span>Very High</span></button>
             </div>
             <input type="hidden" id="stress_level" name="stress_level" required />
             <span class="error-msg" data-for="stress_level"></span>
@@ -197,9 +210,10 @@
         <svg class="gauge gauge-result" viewBox="0 0 240 160" aria-hidden="true">
           <defs>
             <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stop-color="#D9534F"/>
-              <stop offset="45%" stop-color="#E3B341"/>
-              <stop offset="100%" stop-color="#4C9A78"/>
+              <stop offset="0%" stop-color="#F43F5E"/>
+              <stop offset="35%" stop-color="#F59E0B"/>
+              <stop offset="70%" stop-color="#06B6D4"/>
+              <stop offset="100%" stop-color="#10B981"/>
             </linearGradient>
           </defs>
           <path class="gauge-track" d="M 20 140 A 100 100 0 0 1 220 140" />
@@ -213,7 +227,13 @@
         </div>
         <p class="score-band" id="score-band">—</p>
         <p class="score-context" id="score-context"></p>
-        <button type="button" class="reset-btn" id="reset-btn">Run another read</button>
+        <div class="insight-tags" id="insight-tags"></div>
+        <div class="result-actions">
+          <button type="button" class="reset-btn" id="reset-btn">Run another read</button>
+          <button type="button" class="action-btn-ghost" id="copy-btn" title="Copy score summary">
+            <span id="copy-text">📋 Copy Readout</span>
+          </button>
+        </div>
       </div>
 
       <div class="state state-error" id="state-error" hidden>
@@ -229,9 +249,14 @@
 </main>
 
 <footer class="site-footer">
+  <p class="footer-links">
+    <a href="https://mental-health-score-1-ew8o.onrender.com" target="_blank" rel="noopener noreferrer">🚀 Live Web App</a> • 
+    <a href="https://mental-health-score-p8x8.onrender.com/docs" target="_blank" rel="noopener noreferrer">📖 API Swagger Docs</a> • 
+    <a href="https://mental-health-score-p8x8.onrender.com" target="_blank" rel="noopener noreferrer">⚡ Backend Service</a>
+  </p>
   <p>Built for informational purposes only — this is not a clinical assessment. If you're struggling, please talk to someone you trust.</p>
 </footer>
 
-<script src="script.js"></script>
+<script src="script.js?v=2.0"></script>
 </body>
 </html>
